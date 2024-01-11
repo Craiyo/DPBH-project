@@ -1,19 +1,22 @@
 const analyzedTabs = {};
 console.log("Background Script");
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("inside Analzer");
+  console.log(sender);
   if (request.message === "analyzeTab") {
-    console.log("inside Analzer");
+    console.log("inside if Analzer");
     const tabId = sender.tab.id;
-    if (!analyzedTabs[tabId]) {
+    console.log(tabId);
+    if (tabId && !analyzedTabs[tabId]) {
       analyzedTabs[tabId] = true;
+      console.log("Sending 'extractElements' message to tab", tabId);
       chrome.tabs.sendMessage(tabId, { message: "extractElements" });
     }
   }
-  console.log(message);
-  sendResponse({ message: "Response from background JS" });
+  console.log(request.message);
 });
 
-chrome.tabs.onRemoved.addListener((tabId) => {
-  delete analyzedTabs[tabId];
-});
-console.log("outside Analzer");
+// chrome.tabs.onRemoved.addListener((tabId) => {
+//   delete analyzedTabs[tabId];
+// });
+// console.log("outside Analzer");
