@@ -1,20 +1,20 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Dark Patterns buster",
   "version": "1.0",
   "description": "Analyzes the contenDark patterns of web pages",
-  "permissions": ["activeTab", "storage"],
-  "browser_action": {
-    "default_popup": "popup.html"
+  "permissions": ["activeTab", "tabs", "storage"],
+  "background": {
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["WebExamination.js"]
+      "js": ["content.js", "WebExamination.js"],
+      "run_at": "document_end"
     }
-  ]
+  ],
+  "actions": {
+    "default_popup": "popup.html"
+  }
 }
