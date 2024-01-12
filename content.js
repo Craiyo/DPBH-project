@@ -1,9 +1,11 @@
-// content.js
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.action === "extractContent") {
-    // Your web scraping logic goes here
-    var paragraphs = document.querySelectorAll("p");
-    var content = Array.from(paragraphs, (paragraph) => paragraph.textContent);
-    alert(content.join("\n"));
+chrome.runtime.sendMessage({ message: "analyzeTab" });
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === "extractElements") {
+    console.log("inside content loaded");
+    var paragraphs = document.querySelectorAll("a");
+    var extractedText = Array.from(paragraphs)
+      .map((p) => p.textContent)
+      .join("\n");
+    console.log("Extracted Text:", extractedText);
   }
 });
