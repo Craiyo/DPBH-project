@@ -14,6 +14,10 @@ const blockElements = [
 
 const ignoredElements = ["script", "style", "noscript", "br", "hr"];
 
+const winWidth = window.innerWidth;
+const winHeight = window.innerHeight;
+const winArea = winWidth * winHeight;
+
 var isInteractable = function (element) {
   function isEnabled(element) {
     var disabledSupportElements = [
