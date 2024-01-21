@@ -10,7 +10,17 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js", "WebExamination.js"]
+      "js": ["content.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "js/WebExamination/dom_utilis.js",
+        "js/WebExamination/style_utils.js",
+        "js/WebExamination/layout_utils.js"
+      ],
+      "run_at": "document_end"
     }
   ],
   "action": {
