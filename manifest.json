@@ -11,7 +11,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["js/content.js"],
-      "run_at": "document_end"
+      "run_at": "document_idle"
     },
     {
       "matches": ["<all_urls>"],
@@ -20,7 +20,12 @@
         "features/WebExamination/layout_utils.js",
         "features/WebExamination/dom_utilis.js"
       ],
-      "run_at": "document_end"
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["features/DarkPatterns/false_urgency.js"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
