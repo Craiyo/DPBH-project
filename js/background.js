@@ -1,4 +1,3 @@
-const analyzedTabs = {};
 console.log("Background Script");
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("inside Analzer");
@@ -7,11 +6,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("inside if Analzer");
     const tabId = sender.tab.id;
     console.log(tabId);
-    if (tabId && !analyzedTabs[tabId]) {
-      analyzedTabs[tabId] = true;
-      console.log("Sending 'extractElements' message to tab", tabId);
-      chrome.tabs.sendMessage(tabId, { message: "extractElements" });
-    }
+    console.log("Sending 'extractElements' message to tab", tabId);
+    chrome.tabs.sendMessage(tabId, { message: "extractElements" });
   }
   console.log(request.message);
 });

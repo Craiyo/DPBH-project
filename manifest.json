@@ -5,12 +5,22 @@
   "description": "Analyzes the contenDark patterns of web pages",
   "permissions": ["activeTab", "tabs", "storage"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "js/background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js", "WebExamination.js"]
+      "js": ["js/content.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "features/WebExamination/style_utils.js",
+        "features/WebExamination/layout_utils.js",
+        "features/WebExamination/dom_utilis.js"
+      ],
+      "run_at": "document_end"
     }
   ],
   "action": {
