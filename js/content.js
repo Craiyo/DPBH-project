@@ -26,7 +26,7 @@ function extractElements() {
 
 function containsDripPricingPattern(text) {
   const dripPricingKeywords = [
-    "additional fees", "extra charges", "hidden costs",
+    "additional fees", "extra charges", "hidden costs",  //keywords and phrases
     "fees may apply",
     "shipping and handling",
     "taxes not included",
