@@ -78,14 +78,17 @@ function processElements(voices) {
     nDarkPatterns = nDarkPatterns + 1;
   }
 
-  // checking for drip pricing
-  const isDripPricingDetected = detectDripPricing(document);
-  if (isDripPricingDetected) {
-    darkPatterns.push("Drip Pricing");
-    nDarkPatterns = nDarkPatterns + 1;
-  }
+  // // checking for drip pricing
+  // const isDripPricingDetected = detectDripPricing(document);
+  // if (isDripPricingDetected) {
+  //   darkPatterns.push("Drip Pricing");
+  //   nDarkPatterns = nDarkPatterns + 1;
+  // }
 
   // Alert and voice generation
+  var utter = new SpeechSynthesisUtterance(message);
+  utter.voice = voices[0];
+  window.speechSynthesis.speak(utter);
   var message =
     "We have found " +
     nDarkPatterns +
@@ -93,9 +96,6 @@ function processElements(voices) {
     darkPatterns.join(" ");
   console.log(message, voices);
   alert(message);
-  var utter = new SpeechSynthesisUtterance("hi");
-  utter.voice = voices[0];
-  window.speechSynthesis.speak(utter);
 
   // highlight
   let element_index = 0;
