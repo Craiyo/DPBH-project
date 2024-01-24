@@ -77,82 +77,18 @@ function processElements(voices) {
     darkPatterns.push("False Urgency");
     nDarkPatterns = nDarkPatterns + 1;
   }
-  const isDripPricingDetected = detectDripPricing(document);
-  if (isDripPricingDetected) {
-    console.log('Drip pricing detected!');
-    window.alert('Drip pricing detected!');
-  }
-}
 
-function containsDripPricingPattern(text) {
-  const dripPricingKeywords = [
-    "additional fees", "extra charges", "hidden costs",  //keywords and phrases
-    "fees may apply",
-    "shipping and handling",
-    "taxes not included",
-    "service charges",
-    "processing fees",
-    "membership fees",
-    "reservation fees",
-    "convenience fees",
-    "upgrade fees",
-    "fuel surcharge",
-    "facility fees",
-    "booking fees",
-    "administrative fees",
-    "subscription fees",
-    "maintenance fees",
-    "surcharge",
-    "fine print",
-    "terms and conditions apply"
-  ];
-  return dripPricingKeywords.some(keyword => text.toLowerCase().includes(keyword));
-}
-
-function detectDripPricing() {
-  // Option 1: Multiple Price Components
-  const priceElements = document.querySelectorAll('.price, .shipping, .taxes');
-  if (priceElements.length > 1) {
-    sendMessageToBackground('Drip pricing detected!');
-    return true;
-  }
-
-  // Option 2: Dynamic Price Changes
-  const totalPriceElement = document.getElementById('totalPrice');
-  if (totalPriceElement) {
-    totalPriceElement.addEventListener('change', () => {
-      sendMessageToBackground('Drip pricing detected!');
-      return true;
-    });
-  }
-
-  // Option 3: Delayed Price Information
-  const shippingOptions = document.getElementById('shippingOptions');
-  if (shippingOptions) {
-    shippingOptions.addEventListener('change', () => {
-      sendMessageToBackground('Drip pricing detected!');
-      return true;
-    });
-  }
-
-  // Option 4: Check for Phrases or Keywords
-  const pageText = document.body.innerText.toLowerCase();
-  if (containsDripPricingPattern(pageText)) {
-    sendMessageToBackground('Drip pricing detected!');
-    console.log('Drip pricing detected!');  // Add this line for debugging
-    return true;
-  }
-
-  // drip pricing not detected
-  return false;
-}
-
-function sendMessageToBackground(message) {
-  chrome.runtime.sendMessage({ action: 'showPopup', message: message });
-}
-  }
+  // // checking for drip pricing
+  // const isDripPricingDetected = detectDripPricing(document);
+  // if (isDripPricingDetected) {
+  //   darkPatterns.push("Drip Pricing");
+  //   nDarkPatterns = nDarkPatterns + 1;
+  // }
 
   // Alert and voice generation
+  var utter = new SpeechSynthesisUtterance(message);
+  utter.voice = voices[0];
+  window.speechSynthesis.speak(utter);
   var message =
     "We have found " +
     nDarkPatterns +
@@ -160,9 +96,6 @@ function sendMessageToBackground(message) {
     darkPatterns.join(" ");
   console.log(message, voices);
   alert(message);
-  var utter = new SpeechSynthesisUtterance("hi");
-  utter.voice = voices[0];
-  window.speechSynthesis.speak(utter);
 
   // highlight
   let element_index = 0;
@@ -174,9 +107,6 @@ function sendMessageToBackground(message) {
 
     if (text === filtered_elements[triggeredIndex]) {
       highlight(elements[i], "False Urgency");
-      console.log(filtered_elements[triggeredIndex]);
-      console.log(elements[i], text);
-      console.log(i);
     }
     element_index++;
   }
