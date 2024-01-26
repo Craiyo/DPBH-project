@@ -16,9 +16,11 @@ const descriptions = {
     "Forces a user to complete extra, unrelated tasks to do something that should be simple.",
 };
 
+const endpoint = "http://localhost:5000/dark-patterns";
+
 function highlight(element, type) {
-  element.style = "";
-  element.className = "dark-force-highlight";
+  element.style = " ";
+  element.classList.add("dark-force-highlight");
   element.style.backgroundColor = "#f7e660";
   let body = document.createElement("span");
   body.classList.add("dark-force-highlight-body");
@@ -65,18 +67,68 @@ function processElements(voices) {
     .map((link) => link.href.trim())
     .filter((href) => href.length > 0);
 
-  const filtered_elements = Array.from(elements)
+  let filtered_elements = Array.from(elements)
     .map((element) => element.innerText.trim().replace(/\t/g, " "))
     .filter((text) => text.length > 0);
 
+  // Define a global array to store the indices
+  let matchingIndices = [];
+
+  fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tokens: filtered_elements }),
+  })
+    .then((resp) => resp.json())
+    .then((data) => {
+      if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+          let token = item["token"];
+          let prediction = item["prediction"];
+          // console.log(token, prediction, sena);
+          // prediction 0 is scarcity
+          if (prediction === 0) {
+            let matchingIndex = filtered_elements.indexOf(token);
+            if (matchingIndex !== -1) {
+              matchingIndices.push(matchingIndex);
+            }
+          }
+        });
+        console.log("Matching Indices:", matchingIndices);
+        let element_index = 0;
+
+        for (let i = 0; i < matchingIndices.length; i++) {
+          console.log("inside matchingIndices:");
+          for (let j = 0; j < elements.length; j++) {
+            console.log("inside elements");
+            let text = elements[j].innerText.trim().replace(/\t/g, " ");
+
+            if (text.length > 0) {
+              // Check if the text matches the value in filtered_elements
+              if (text === filtered_elements[matchingIndices[i]]) {
+                console.log(elements[j]);
+                console.log(filtered_elements[matchingIndices[i]]);
+                highlight(elements[j], "False Urgency");
+              }
+            }
+            element_index++;
+          }
+        }
+
+        if (matchingIndices.length != 0) {
+          console.log("False Urgency triggered at index:", matchingIndices);
+          darkPatterns.push("False Urgency");
+          nDarkPatterns = nDarkPatterns + 1;
+        }
+      } else {
+        console.error("Invalid response format:", data);
+      }
+    })
+    .catch((error) => {
+      console.error("Fetch error:", error);
+    });
+
   // Checking for false Urgency
-  var content = filtered_elements.join(" ");
-  var triggeredIndex = checkForFalseUrgency(content, filtered_elements);
-  if (triggeredIndex !== -1) {
-    console.log("False Urgency triggered at index:", triggeredIndex);
-    darkPatterns.push("False Urgency");
-    nDarkPatterns = nDarkPatterns + 1;
-  }
 
   // // checking for drip pricing
   // const isDripPricingDetected = detectDripPricing(document);
@@ -86,30 +138,18 @@ function processElements(voices) {
   // }
 
   // Alert and voice generation
-  var utter = new SpeechSynthesisUtterance(message);
-  utter.voice = voices[0];
-  window.speechSynthesis.speak(utter);
-  var message =
-    "We have found " +
-    nDarkPatterns +
-    " dark patterns in this website. These Dark Patterns are " +
-    darkPatterns.join(" ");
-  console.log(message, voices);
-  alert(message);
+  // var message =
+  //   "We have found " +
+  //   nDarkPatterns +
+  //   " dark patterns in this website. " +
+  //   darkPatterns.join(", ") +
+  //   " may exist.";
+  // // var utter = new SpeechSynthesisUtterance(message);
+  // // utter.voice = voices[12];
+  // // window.speechSynthesis.speak(utter);
+  // alert(message);
 
   // highlight
-  let element_index = 0;
-  for (let i = 0; i < elements.length; i++) {
-    let text = elements[i].innerText.trim().replace(/\t/g, " ");
-    if (text.length == 0) {
-      continue;
-    }
-
-    if (text === filtered_elements[triggeredIndex]) {
-      highlight(elements[i], "False Urgency");
-    }
-    element_index++;
-  }
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
