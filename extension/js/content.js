@@ -79,73 +79,45 @@ function processElements(voices) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
-      // if (Array.isArray(data)) {
-      //   data.forEach((item, index) => {
-      //     let token = item["token"];
-      //     let prediction = item["prediction"];
-      //     // console.log(token, prediction, sena);
-      //     // prediction 0 is scarcity
-      //     if (prediction === 0) {
-      //       let matchingIndex = filtered_elements.indexOf(token);
-      //       if (matchingIndex !== -1) {
-      //         matchingIndices.push(matchingIndex);
-      //       }
-      //     }
-      //   });
-      //   console.log("Matching Indices:", matchingIndices);
-      //   let element_index = 0;
-      //   for (let i = 0; i < matchingIndices.length; i++) {
-      //     console.log("inside matchingIndices:");
-      //     for (let j = 0; j < elements.length; j++) {
-      //       console.log("inside elements");
-      //       let text = elements[j].innerText.trim().replace(/\t/g, " ");
-      //       if (text.length > 0) {
-      //         // Check if the text matches the value in filtered_elements
-      //         if (text === filtered_elements[matchingIndices[i]]) {
-      //           console.log(elements[j]);
-      //           console.log(filtered_elements[matchingIndices[i]]);
-      //           highlight(elements[j], "False Urgency");
-      //         }
-      //       }
-      //       element_index++;
-      //     }
-      //   }
-      //   if (matchingIndices.length != 0) {
-      //     console.log("False Urgency triggered at index:", matchingIndices);
-      //     darkPatterns.push("False Urgency");
-      //     nDarkPatterns = nDarkPatterns + 1;
-      //   }
-      // } else {
-      //   console.error("Invalid response format:", data);
-      // }
+      if (data && data.tokens && data.predictions) {
+        data.tokens.forEach((token, index) => {
+          let prediction = data.predictions[index];
+          console.log(token, prediction);
+          // prediction 0 is scarcity
+          if (prediction === 0) {
+            let matchingIndex = filtered_elements.indexOf(token);
+            if (matchingIndex !== -1) {
+              matchingIndices.push(matchingIndex);
+            }
+          }
+        });
+
+        console.log("Matching Indices:", matchingIndices);
+        let element_index = 0;
+        for (let i = 0; i < matchingIndices.length; i++) {
+          for (let j = 0; j < elements.length; j++) {
+            let text = elements[j].innerText.trim().replace(/\t/g, " ");
+            if (text.length > 0) {
+              // Check if the text matches the value in filtered_elements
+              if (text === filtered_elements[matchingIndices[i]]) {
+                highlight(elements[j], "False Urgency");
+              }
+            }
+            element_index++;
+          }
+        }
+        if (matchingIndices.length != 0) {
+          console.log("False Urgency triggered at index:", matchingIndices);
+          darkPatterns.push("False Urgency");
+          nDarkPatterns = nDarkPatterns + 1;
+        }
+      } else {
+        console.error("Invalid response format:", data);
+      }
     })
     .catch((error) => {
       console.error("Fetch error:", error);
     });
-
-  // Checking for false Urgency
-
-  // // checking for drip pricing
-  // const isDripPricingDetected = detectDripPricing(document);
-  // if (isDripPricingDetected) {
-  //   darkPatterns.push("Drip Pricing");
-  //   nDarkPatterns = nDarkPatterns + 1;
-  // }
-
-  // Alert and voice generation
-  // var message =
-  //   "We have found " +
-  //   nDarkPatterns +
-  //   " dark patterns in this website. " +
-  //   darkPatterns.join(", ") +
-  //   " may exist.";
-  // // var utter = new SpeechSynthesisUtterance(message);
-  // // utter.voice = voices[12];
-  // // window.speechSynthesis.speak(utter);
-  // alert(message);
-
-  // highlight
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
