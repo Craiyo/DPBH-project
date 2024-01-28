@@ -10,7 +10,7 @@ app.use(cors()); // Enable CORS for all routes
 app.post("/", async (req, res) => {
   try {
     const data = req.body.tokens;
-    console.log("Received data:", data);
+    console.log("Data recieved from Extension");
 
     // Spawn a Python process with the input data as command line argument
     const pythonProcess = spawn("python", [
