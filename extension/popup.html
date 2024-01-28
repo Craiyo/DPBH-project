@@ -1,34 +1,21 @@
-<!-- popup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Dark Forces Extension</title>
   <link rel="stylesheet" href="popup.css">
+  <title>The Dark Forces Extension</title>
+  <link rel="stylesheet" href="pops.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var audioIcon = document.getElementById('audio-icon');
-
-      audioIcon.addEventListener('click', function() {
-        audioIcon.classList.toggle('active');
-      });
-    });
-    function toggleAudio() {
-        var audioControl = document.getElementById('audio-control');
-        audioControl.classList.toggle('crossed-out');
-    }
-  </script>
 </head>
 <body>
   <div class="background-gif"></div>
   <div class="popup-container">
-    <div id="background-gif" style="background: url('./assets/Green Purple Grainy Gradient Thank You Facebook Video.gif') center center / cover no-repeat fixed;"></div>
+    <div id="background-gif" style="background: url('./assets/Dark\ Blue\ Cyan\ Modern\ Tech\ General\ News\ Logo\ \(2\).gif') center center / cover no-repeat fixed;"></div>
     <div class="header">
       <div  class="line">
-        <h1 class="extension-name" style="width:650px">The Dark Forces</h1>
-        <div class="audio-control" id="audio-control" onclick="toggleAudio()">
+        <h1 class="extension-name" style="width:540px">The Dark Forces</h1>
+        <div class="audio-control" id="audio-control" >
           <i class="fas fa-volume-high" id="audio-icon"></i>
           <i class="fa-solid fa-volume-xmark"></i>
       </div>
@@ -51,7 +38,7 @@
         </label>
       </div>
       <div class="toggle-button" id="toggle2">
-        <span class="toggle-name">Hide the Dark Patterns</span>
+        <span class="toggle-name" style="padding-right: 5px;">Hide the Dark Patterns</span>
         <label class="switch">
           <input type="checkbox">
           <span class="slider"></span>

@@ -16,16 +16,16 @@ const descriptions = {
     "Forces a user to complete extra, unrelated tasks to do something that should be simple.",
 };
 
-function highlight(element, type) {
+function highlight(element, color) {
   element.style = " ";
   element.classList.add("dark-force-highlight");
-  element.style.backgroundColor = "#f7e660";
+  element.style.backgroundColor = color;
   let body = document.createElement("span");
   body.classList.add("dark-force-highlight-body");
   /* content */
   let content = document.createElement("div");
   content.classList.add("modal-content");
-  content.innerHTML = type;
+  content.innerHTML = "This is a dark Pattern";
   body.appendChild(content);
 
   element.appendChild(body);
@@ -55,9 +55,59 @@ function extractElements() {
   }
 }
 
+function createContentBox() {
+  let contentBox = document.getElementById("extensionContentBox");
+
+  if (!contentBox) {
+    contentBox = document.createElement("div");
+    contentBox.id = "extensionContentBox";
+    contentBox.innerHTML = "<p>Analyzing this Website...</p>";
+    styleContentBox(contentBox);
+    positionContentBox(contentBox);
+    document.body.appendChild(contentBox);
+  }
+}
+
+function styleContentBox(contentBox) {
+  contentBox.style.backgroundColor = "rgba(255, 0, 0, 0.7)";
+  contentBox.style.border = "2px solid #ff0000";
+  contentBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+  contentBox.style.padding = "10px";
+  contentBox.style.color = "#ffffff";
+  contentBox.style.borderRadius = "8px";
+}
+
+function positionContentBox(contentBox) {
+  contentBox.style.position = "fixed"; // or 'absolute'
+  contentBox.style.top = "10px"; // Adjust as needed
+  contentBox.style.left = "10px"; // Adjust as needed
+  contentBox.style.zIndex = "9999";
+}
+
+function updateContentBox(data) {
+  let contentBox = document.getElementById("extensionContentBox");
+  contentBox.innerHTML =
+    "<p>Website analyzed...</p>" + generateContentHTML(data);
+}
+
+function generateContentHTML(data) {
+  const arr = ["False Urgency", "Misdirection", "Forced Action"];
+  const listItemColor = "white";
+
+  let newContentHTML = "";
+  if (data && data.length > 0) {
+    newContentHTML = `<ul style="color: ${listItemColor};">`;
+    data.forEach((item, index) => {
+      newContentHTML += `<li>${arr[index]} :- ${item}</li>`;
+    });
+    newContentHTML += "</ul>";
+  }
+  return newContentHTML;
+}
+
+
 function processElements(voices) {
-  var darkPatterns = [];
-  let nDarkPatterns = 0;
+  createContentBox();
   console.log("Extracting elements");
   let elements = segments(document.body);
 
@@ -70,7 +120,6 @@ function processElements(voices) {
     .filter((text) => text.length > 0);
 
   // Define a global array to store the indices
-  let matchingIndices = [];
 
   fetch("http://localhost:5000", {
     method: "POST",
@@ -79,38 +128,39 @@ function processElements(voices) {
   })
     .then((response) => response.json())
     .then((data) => {
-      if (data && data.tokens && data.predictions) {
+      let d1 = 0;
+      let d2 = 0;
+      let d3 = 0;
+      if (
+        data &&
+        Array.isArray(data.tokens) &&
+        Array.isArray(data.predictions)
+      ) {
         data.tokens.forEach((token, index) => {
           let prediction = data.predictions[index];
           console.log(token, prediction);
-          // prediction 0 is scarcity
-          if (prediction === 0) {
+          if ((prediction === 0) | (prediction === 3) | (prediction === 7)) {
+            if (prediction === 0) {
+              d1 += 1;
+            } else if (prediction === 3) {
+              d2 += 1;
+            } else if (prediction === 7) {
+              d3 += 1;
+            }
+            arr = [d1, d2, d3];
+            updateContentBox(arr);
             let matchingIndex = filtered_elements.indexOf(token);
-            if (matchingIndex !== -1) {
-              matchingIndices.push(matchingIndex);
+            for (let j = 0; j < elements.length; j++) {
+              let text = elements[j].innerText.trim().replace(/\t/g, " ");
+              if (
+                text.length > 0 &&
+                text === filtered_elements[matchingIndex]
+              ) {
+                highlight(elements[j], getColor(prediction));
+              }
             }
           }
         });
-
-        console.log("Matching Indices:", matchingIndices);
-        let element_index = 0;
-        for (let i = 0; i < matchingIndices.length; i++) {
-          for (let j = 0; j < elements.length; j++) {
-            let text = elements[j].innerText.trim().replace(/\t/g, " ");
-            if (text.length > 0) {
-              // Check if the text matches the value in filtered_elements
-              if (text === filtered_elements[matchingIndices[i]]) {
-                highlight(elements[j], "False Urgency");
-              }
-            }
-            element_index++;
-          }
-        }
-        if (matchingIndices.length != 0) {
-          console.log("False Urgency triggered at index:", matchingIndices);
-          darkPatterns.push("False Urgency");
-          nDarkPatterns = nDarkPatterns + 1;
-        }
       } else {
         console.error("Invalid response format:", data);
       }
@@ -118,6 +168,19 @@ function processElements(voices) {
     .catch((error) => {
       console.error("Fetch error:", error);
     });
+}
+
+function getColor(prediction) {
+  switch (prediction) {
+    case 0:
+      return "red"; // Adjust color for False Urgency
+    case 3:
+      return "yellow"; // Adjust color for Misdirection
+    case 7:
+      return "orange"; // Adjust color for Forced Action
+    default:
+      return "gray"; // Default color
+  }
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

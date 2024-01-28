@@ -1,10 +1,10 @@
+from transformers import pipeline
+from collections import Counter
+from transformers import AlbertForSequenceClassification, AlbertTokenizer
 from transformers import BertTokenizer, BertForSequenceClassification
 from transformers import XLNetTokenizer, XLNetForSequenceClassification
 from transformers import RobertaTokenizer, RobertaForSequenceClassification
-from transformers import AlbertTokenizer, AlbertForSequenceClassification
 from torch.nn.functional import softmax
-import torch
-from torch.utils.data import TensorDataset, DataLoader
 import sys
 import json
 
@@ -25,66 +25,56 @@ roberta_tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 roberta_model = RobertaForSequenceClassification.from_pretrained(
     roberta_model_path)
 
-albert_tokenizer = AlbertTokenizer.from_pretrained("albert-base-v2")
-albert_model = AlbertForSequenceClassification.from_pretrained(
-    ALbert_model_path)
+# Sentiment analysis model
+sentiment_analyzer_1 = pipeline(
+    'sentiment-analysis', model=bert_model, tokenizer=bert_tokenizer)
+sentiment_analyzer_2 = pipeline(
+    'sentiment-analysis', model=xlnet_model, tokenizer=xlnet_tokenizer)
+sentiment_analyzer_3 = pipeline(
+    'sentiment-analysis', model=roberta_model, tokenizer=roberta_tokenizer)
+
+
+def get_majority_vote(predictions):
+    predicted_labels = [prediction['label'] for prediction in predictions]
+    majority_vote_label = Counter(predicted_labels).most_common(1)[0][0]
+    return majority_vote_label
+
 
 max_seq_length = 512
 
-
-def preprocess_text(tokenizer, text):
-    tokens = tokenizer.encode(
-        text, add_special_tokens=True, max_length=max_seq_length, truncation=True)
-    return tokens
-
-
-def predict_dark_patterns(models, tokenizers, input_text):
-    votes = []
-
-    for model, tokenizer in zip(models, tokenizers):
-        input_ids = tokenizer.encode(preprocess_text(
-            tokenizer, input_text), return_tensors='pt', max_length=max_seq_length, truncation=True)
-        with torch.no_grad():
-            outputs = model(input_ids)
-        probs = softmax(outputs.logits, dim=1).squeeze()
-        predicted_category = torch.argmax(probs).item()
-        votes.append(predicted_category)
-
-    return votes
+# Map
+dark_pattern_mapping = {
+    'Urgency': 0,
+    'Not Dark Pattern': 1,
+    'Scarcity': 2,
+    'Misdirection': 3,
+    'Social Proof': 4,
+    'Obstruction': 5,
+    'Sneaking': 6,
+    'Forced Action': 7
+}
 
 
-def perform_semantic_analysis(model, tokenizer, new_texts):
-    # Tokenize the new text samples
-    new_encodings = tokenizer(list(new_texts), truncation=True, padding=True)
-
-    # Convert to PyTorch tensor
-    new_dataset = TensorDataset(
-        torch.tensor(new_encodings['input_ids']),
-        torch.tensor(new_encodings['attention_mask'])
-    )
-
-    new_loader = DataLoader(new_dataset, batch_size=8, shuffle=False)
-
-    model.eval()
-    all_preds = []
-
-    with torch.no_grad():
-        for batch in new_loader:
-            inputs = {'input_ids': batch[0], 'attention_mask': batch[1]}
-            outputs = model(**inputs)
-            logits = outputs.logits
-            preds = torch.argmax(logits, dim=1)
-            all_preds.extend(preds.cpu().numpy())
-
-    return all_preds
-
-
-output_data = []
+output_data_strings = []
 input_data = json.loads(sys.argv[1])
-for i, text in enumerate(input_data):
-    predictions = predict_dark_patterns([bert_model, xlnet_model, roberta_model], [
-                                        bert_tokenizer, xlnet_tokenizer, roberta_tokenizer], text)
-    majority = max(set(predictions), key=predictions.count)
-    output_data.append(majority)
+# input_data = ["You are dumb", "20% Off", "I bought a new car", "Flash Sale - Ends Today!", "Exclusive 24-Hour Access for VIP Members Only!", "spring clearance event",
+#               "summer flash sale", "back-to-school special", "fall exclusive deal", "holiday gift guide special", "today's exclusive anniversary offer", "limited-time birthday discount",
+#               "exclusive loyalty member deal", "limited-time reward member offer", "today's loyalty program special", "exclusive referral program discount", "limited-time friend referral offer",
+#               "exclusive social media follower deal", "today's Twitter/Facebook/Instagram offer", "limited-time email subscriber special", "today's newsletter subscriber deal"]
+sentiment_result_1 = sentiment_analyzer_1(input_data)
+sentiment_result_2 = sentiment_analyzer_2(input_data)
+sentiment_result_3 = sentiment_analyzer_3(input_data)
 
+for i, text in enumerate(input_data):
+    bert_result = get_majority_vote([sentiment_result_1[i]])
+    roberta_result = get_majority_vote([sentiment_result_2[i]])
+    xlnet_result = get_majority_vote([sentiment_result_3[i]])
+
+    all_results = [bert_result, roberta_result, xlnet_result]
+    counted_results = Counter(all_results)
+    final_result = counted_results.most_common(1)[0][0]
+    output_data_strings.append(final_result)
+
+output_data = [dark_pattern_mapping[item] for item in output_data_strings]
+# print({"tokens": input_data, "predictions": output_data})
 print(json.dumps({"tokens": input_data, "predictions": output_data}))
