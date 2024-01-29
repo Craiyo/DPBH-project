@@ -25,7 +25,7 @@ app.post("/", async (req, res) => {
     pythonProcess.stdout.on("data", (data) => {
       pythonOutput += data.toString();
     });
-
+    console.log("come out of python process");
     // Listen for errors from the Python process
     pythonProcess.stderr.on("data", (data) => {
       console.error(`Python Error: ${data}`);
@@ -36,6 +36,7 @@ app.post("/", async (req, res) => {
       if (code === 0) {
         try {
           // Parse the processed data from Python and send it as a response
+          console.log("data sent to extension");
           const result = JSON.parse(pythonOutput);
           res.status(200).json(result);
         } catch (error) {
@@ -47,6 +48,7 @@ app.post("/", async (req, res) => {
         res.status(500).send("Internal Server Error");
       }
     });
+    console.log("data sent to extension - 1");
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
