@@ -34,7 +34,6 @@ function processElements(voices) {
       let d2 = 0;
       let d3 = 0;
       let d4 = 0;
-      let d5 = 0;
       if (Array.isArray(data)) {
         data.forEach((item) => {
           const token = item.token;
@@ -45,13 +44,11 @@ function processElements(voices) {
             d3 += 1;
           } else if (prediction === 3) {
             d4 += 1;
-          } else if (prediction === 7) {
-            d5 += 1;
           } else {
             d2 += 1;
           }
 
-          let arr = [d1, d2, d3, d4, d5];
+          let arr = [d1, d2, d3, d4];
 
           updateContentBox(arr);
           let matchingIndex = filtered_elements.indexOf(token);
@@ -67,7 +64,7 @@ function processElements(voices) {
       } else {
         console.error("Invalid response format:", data);
       }
-      sum = d1 + d3 + d4 + d5;
+      sum = d1 + d3 + d4;
       message =
         "we have found" +
         sum +

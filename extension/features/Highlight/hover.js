@@ -76,7 +76,6 @@ function generateChartData(data) {
     "Not Dark Pattern": 0,
     Scarcity: 0,
     Misdirection: 0,
-    "Forced Action": 0,
   };
 
   data.forEach((item, index) => {
@@ -95,7 +94,7 @@ function renderPieChart(chartData) {
       datasets: [
         {
           data: Object.values(chartData),
-          backgroundColor: ["red", "green", "blue", "yellow", "orange"],
+          backgroundColor: ["red", "green", "cyan", "yellow"],
         },
       ],
     },
@@ -128,10 +127,8 @@ function getColor(prediction) {
     case 0:
       return "red"; // color for Urgency
     case 2:
-      return "blue"; // color for Scarcity
+      return "cyan"; // color for Scarcity
     case 3:
       return "yellow"; // color for Misdirection
-    case 7:
-      return "orange"; // color for Forced Action
   }
 }
