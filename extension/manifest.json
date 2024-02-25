@@ -24,7 +24,7 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["features/DarkPatterns/false_urgency.js"],
+      "js": ["features/Highlight/hover.js", "features/Highlight/chart.js"],
       "run_at": "document_idle"
     }
   ],
